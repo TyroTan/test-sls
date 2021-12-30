@@ -1,0 +1,30 @@
+Resources:
+  pregenBookletSQS:
+    Type: AWS::SQS::Queue
+    Properties:
+      FifoQueue: true
+      ContentBasedDeduplication: true
+      MessageRetentionPeriod: 1209600 # 14 day
+      VisibilityTimeout: 1000
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt pregenBookletDLQ.Arn
+        maxReceiveCount: 3
+  pregenBookletDLQ:
+    Type: AWS::SQS::Queue
+    Properties:
+      FifoQueue: true
+      MessageRetentionPeriod: 1209600 # 14 day
+
+Outputs:
+  pregenBookletSQSUrl:
+    Value: !Ref pregenBookletSQS
+    Export:
+      Name: SQS-URL-FulfillmentPregen2Item-${self:provider.stage}
+  pregenBookletSQSArn:
+    Value: !GetAtt pregenBookletSQS.Arn
+    Export:
+      Name: SQS-ARN-FulfillmentPregen2Item-${self:provider.stage}
+  pregenBookletSQSName:
+    Value: !GetAtt pregenBookletSQS.QueueName
+    Export:
+      Name: SQS-NAME-FulfillmentPregen2Item-${self:provider.stage}

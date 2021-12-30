@@ -1,0 +1,57 @@
+MatchShipments:
+  handler: src/shipping/match-shipments.handler
+  description: Get a group of batch shipment results (100) and store them on the order data rows
+  role: base
+  timeout: 60
+  layers:
+    - arn:aws:lambda:us-east-1:#{AWS::AccountId}:layer:node-module-axios:4
+    - arn:aws:lambda:us-east-1:#{AWS::AccountId}:layer:node-module-fulfillment-util:6
+    - arn:aws:lambda:us-east-1:#{AWS::AccountId}:layer:node-module-shippo-util:4
+
+SaveLabelImages:
+  handler: src/shipping/save-label-images.handler
+  role: base
+  description: Get a batch (100) of PNG label images for shipments and save to S3 by transaction id
+  layers:
+    - arn:aws:lambda:us-east-1:#{AWS::AccountId}:layer:node-module-axios:4
+    - arn:aws:lambda:us-east-1:#{AWS::AccountId}:layer:node-module-fulfillment-util:6
+    - arn:aws:lambda:us-east-1:#{AWS::AccountId}:layer:node-module-shippo-util:4
+  timeout: 60
+
+CompleteGroup:
+  handler: src/shipping/emit-shipping-results.groupComplete
+  role: base
+  description: Publish an event that a group of wholesale booklets are ready to print
+  timeout: 10
+  layers:
+    - arn:aws:lambda:us-east-1:#{AWS::AccountId}:layer:node-module-axios:4
+    - arn:aws:lambda:us-east-1:#{AWS::AccountId}:layer:node-module-fulfillment-util:6
+
+CompleteBatch:
+  handler: src/shipping/emit-shipping-results.batchComplete
+  role: base
+  timeout: 10
+  description: Publish an event that the batch has finished retrieving shipment data
+  layers:
+    - arn:aws:lambda:us-east-1:#{AWS::AccountId}:layer:node-module-axios:4
+    - arn:aws:lambda:us-east-1:#{AWS::AccountId}:layer:node-module-fulfillment-util:6
+
+PrepareBatchData:
+  handler: src/shipping/prepare-transaction-data.handler
+  role: base
+  description: Prepare batch shipment data for retrieving transaction data step function
+  layers:
+    - arn:aws:lambda:us-east-1:#{AWS::AccountId}:layer:node-module-util:9
+    - arn:aws:lambda:us-east-1:#{AWS::AccountId}:layer:node-module-fulfillment-util:6
+    - arn:aws:lambda:us-east-1:#{AWS::AccountId}:layer:node-module-axios:4
+  timeout: 60
+
+RetrieveTransactions:
+  handler: src/shipping/retrieve-transaction.handler
+  role: base
+  description: Get transaction data for each batch shipment and publish an event
+  timeout: 60
+  layers:
+    - arn:aws:lambda:us-east-1:#{AWS::AccountId}:layer:node-module-axios:4
+    - arn:aws:lambda:us-east-1:#{AWS::AccountId}:layer:node-module-fulfillment-util:6
+    - arn:aws:lambda:us-east-1:#{AWS::AccountId}:layer:node-module-shippo-util:4

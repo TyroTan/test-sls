@@ -1,0 +1,18 @@
+Resources:
+  pregenQueueSSM:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: pregen-2item-queue-${self:provider.stage}
+      Type: String
+      Value: !Join
+        - ""
+        - - "{"
+          - '"QueueUrl":'
+          - '"'
+          - !Ref pregenBookletSQS
+          - '",'
+          - '"S3_Bucket":'
+          - '"'
+          - Fn::ImportValue: Fulfillment-Core-${self:provider.stage}-AssetsBucketName
+          - '"'
+          - "}"

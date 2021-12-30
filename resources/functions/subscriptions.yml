@@ -1,0 +1,15 @@
+listSubscriptions:
+  handler: src/subscriptions/list.handler
+  role: base
+  timeout: 60
+  events:
+    - http:
+        method: get
+        cors:
+          origin: "*"
+          headers:
+            - Content-Type
+            - Cache-Control
+            - Content-Length
+            - Access-Control-Allow-Origin
+        path: list

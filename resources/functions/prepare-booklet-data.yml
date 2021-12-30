@@ -1,0 +1,19 @@
+prepareData:
+  handler: src/booklet/prepare-data.handler
+  role: base
+  timeout: 60
+  layers:
+    - arn:aws:lambda:us-east-1:#{AWS::AccountId}:layer:node-module-fulfillment-util:6
+    - arn:aws:lambda:us-east-1:#{AWS::AccountId}:layer:node-module-axios:4
+    - arn:aws:lambda:us-east-1:#{AWS::AccountId}:layer:node-module-shippo-util:4
+  # events:
+  #   - eventBridge:
+  #       eventBus: arn:aws:events:us-east-1:#{AWS::AccountId}:event-bus/ProductionEvents
+  #       pattern:
+  #         source:
+  #           - amb.shipping.fulfillment
+  #         detail-type:
+  #           - batch_created
+  #         detail:
+  #           stage:
+  #             - ${self:provider.stage}

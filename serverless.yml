@@ -1,0 +1,57 @@
+service:
+  name: TestSls-Backend
+
+custom:
+  env: ${file(../.env.yml)} # untracked env default vars
+  prune:
+    automatic: true
+    number: 3
+  webpack:
+    webpackConfig: ./webpack.config.js
+    includeModules:
+      forceExclude:
+        - awesome-phonenumber
+        - aws-sdk
+        - axios
+        - bwip-js
+        - jsonwebtoken
+        - mysql2
+    excludeFiles: "**/*.test.ts"
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  profile: ${opt:aws-profile, "serverless-TestSls"}
+  stage: ${opt:stage, "Dev"}
+  region: ${opt:region, "ap-southeast-2"}
+  logRetentionInDays: 14
+  deploymentBucket:
+    name: slsTestSls.${self:provider.region}.deploys
+    serverSideEncryption: AES256
+  deploymentPrefix: deploys/${self:service.name}
+  apiGateway:
+    minimumCompressionSize: 1024 # Enable gzip compression for responses > 1 KB
+  role: base
+  environment:
+    AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
+    ENV_STAGE: ${self:provider.stage}
+    # DB_CREDENTIAL_KEY: ${ssm:/Defaults/RDS/${self:provider.stage}}
+
+package:
+  individually: true
+  exclude:
+    - "*.json"
+    - "*.md"
+
+functions:
+  - ${file(resources/functions/subscriptions.yml)}
+
+resources:
+  - ${file(resources/iam.yml)}
+  # - ${file(resources/sqs.yml)}
+  # - ${file(resources/ssm.yml)}
+
+plugins:
+  - serverless-prune-plugin
+  - serverless-pseudo-parameters
+  - serverless-webpack
